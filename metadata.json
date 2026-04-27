@@ -1,0 +1,5 @@
+{
+  "name": "Blobmaker Clone",
+  "description": "Uma ferramenta minimalista para gerar formas orgânicas (blobs) com estética Glassmorphism.",
+  "requestFramePermissions": []
+}

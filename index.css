@@ -1,0 +1,44 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { BlobProvider, useBlobContext } from './context/BlobContext';
+import MainLayout from './components/layout/MainLayout';
+import { useBlob } from './hooks/useBlob';
+
+function BlobDisplay() {
+  const { color, complexity, smoothness, seed } = useBlobContext();
+  const path = useBlob({ complexity, smoothness, seed });
+
+  return (
+    <div className="relative group">
+      {/* Glow effect behind the blob - reage à cor selecionada */}
+      <div 
+        className="absolute inset-0 blur-[100px] rounded-full scale-150 animate-pulse transition-colors duration-500" 
+        style={{ backgroundColor: `${color}33` }} // 33 é ~20% de opacidade em hex
+      />
+      
+      {/* O Blob Dinâmico */}
+      <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
+        <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl filter transition-all duration-500 ease-in-out">
+          <path 
+            fill={color}
+            d={path}
+            className="transition-all duration-500 ease-in-out"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BlobProvider>
+      <MainLayout>
+        <BlobDisplay />
+      </MainLayout>
+    </BlobProvider>
+  );
+}

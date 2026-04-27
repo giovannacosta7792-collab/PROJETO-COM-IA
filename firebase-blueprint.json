@@ -1,0 +1,58 @@
+import { useMemo } from 'react';
+
+interface BlobOptions {
+  complexity: number;
+  smoothness: number;
+  seed: number;
+}
+
+export function useBlob({ complexity, smoothness, seed }: BlobOptions) {
+  const path = useMemo(() => {
+    const size = 200;
+    const center = size / 2;
+    const radius = size / 3;
+    const points = [];
+    const angleStep = (Math.PI * 2) / complexity;
+
+    // Gerador de números pseudo-aleatórios baseado na seed
+    const random = (i: number) => {
+      const x = Math.sin(seed + i) * 10000;
+      return x - Math.floor(x);
+    };
+
+    // 1. Gerar pontos baseados em um círculo com variação aleatória
+    for (let i = 0; i < complexity; i++) {
+      const angle = i * angleStep;
+      // A variação do raio depende da suavidade (smoothness)
+      // Quanto menor a suavidade, mais "pontudo" (maior variação)
+      const variance = (100 - smoothness) / 100;
+      const r = radius + (random(i) - 0.5) * radius * variance * 2;
+      
+      const x = center + Math.cos(angle) * r;
+      const y = center + Math.sin(angle) * r;
+      points.push({ x, y });
+    }
+
+    // 2. Transformar pontos em um Path SVG usando Curvas de Bézier Cúbicas
+    // Para fechar o blob suavemente, conectamos o último ponto ao primeiro
+    let d = `M ${points[0].x},${points[0].y}`;
+
+    for (let i = 0; i < points.length; i++) {
+      const p1 = points[i];
+      const p2 = points[(i + 1) % points.length];
+      const p3 = points[(i + 2) % points.length];
+
+      // Pontos de controle para suavização
+      const controlX1 = p1.x + (p2.x - points[(i - 1 + points.length) % points.length].x) * 0.2;
+      const controlY1 = p1.y + (p2.y - points[(i - 1 + points.length) % points.length].y) * 0.2;
+      const controlX2 = p2.x - (p3.x - p1.x) * 0.2;
+      const controlY2 = p2.y - (p3.y - p1.y) * 0.2;
+
+      d += ` C ${controlX1},${controlY1} ${controlX2},${controlY2} ${p2.x},${p2.y}`;
+    }
+
+    return d;
+  }, [complexity, smoothness, seed]);
+
+  return path;
+}

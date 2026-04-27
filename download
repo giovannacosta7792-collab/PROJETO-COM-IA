@@ -1,0 +1,166 @@
+import React, { useState } from 'react';
+import { useBlobContext } from '../../context/BlobContext';
+import { Settings2, Palette, Layers, Sparkles, Bookmark, Users, Copy, LogOut } from 'lucide-react';
+import Gallery from './Gallery';
+
+export default function Sidebar() {
+  const { 
+    color, complexity, smoothness, setColor, setComplexity, setSmoothness,
+    roomId, createRoom, joinRoom, leaveRoom, user
+  } = useBlobContext();
+
+  const [joinId, setJoinId] = useState('');
+
+  const copyRoomId = () => {
+    if (roomId) {
+      navigator.clipboard.writeText(roomId);
+      alert("ID da sala copiado!");
+    }
+  };
+
+  return (
+    <aside className="w-full md:w-[360px] glass border-r border-white/5 flex flex-col z-20 h-full">
+      <div className="p-8 flex flex-col h-full overflow-hidden">
+        <header className="flex items-center gap-3 mb-10 shrink-0">
+          <div className="w-10 h-10 bg-blob-blue rounded-xl flex items-center justify-center shadow-lg shadow-blob-blue/20">
+            <Settings2 size={22} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">
+              Blob<span className="text-blob-blue">maker</span>
+            </h1>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+              Vibecoding Clone
+            </p>
+          </div>
+        </header>
+
+        <div className="flex-1 space-y-10 overflow-y-auto pr-2 -mr-2 custom-scrollbar">
+          {/* Party Mode Section */}
+          <section className="space-y-4 pb-6 border-b border-white/5">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <Users size={14} /> Party Mode
+            </label>
+            
+            {!user ? (
+              <p className="text-[10px] text-slate-500 italic">Faça login para usar o Party Mode</p>
+            ) : roomId ? (
+              <div className="space-y-3">
+                <div className="bg-blob-blue/10 border border-blob-blue/20 rounded-xl p-3">
+                  <p className="text-[10px] text-blob-blue font-bold uppercase mb-1">Sala Ativa</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <code className="text-xs font-mono text-slate-300 truncate">{roomId}</code>
+                    <div className="flex gap-1">
+                      <button onClick={copyRoomId} className="p-1.5 hover:bg-white/10 rounded-md transition-colors text-slate-400">
+                        <Copy size={12} />
+                      </button>
+                      <button onClick={leaveRoom} className="p-1.5 hover:bg-red-500/20 rounded-md transition-colors text-red-500">
+                        <LogOut size={12} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-500 text-center">As alterações são sincronizadas em tempo real!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <button 
+                  onClick={createRoom}
+                  className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2"
+                >
+                  Criar Nova Sala
+                </button>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="ID da Sala"
+                    value={joinId}
+                    onChange={(e) => setJoinId(e.target.value)}
+                    className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-blob-blue/50"
+                  />
+                  <button 
+                    onClick={() => joinRoom(joinId)}
+                    className="px-4 py-2 bg-blob-blue hover:bg-blue-500 rounded-lg text-xs font-bold transition-all"
+                  >
+                    Entrar
+                  </button>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* Color Picker */}
+          <section className="space-y-4">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <Palette size={14} /> Cor do Blob
+            </label>
+            <div className="flex items-center gap-4">
+              <input 
+                type="color" 
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-12 h-12 rounded-lg bg-transparent cursor-pointer border-none"
+              />
+              <input 
+                type="text" 
+                value={color.toUpperCase()}
+                onChange={(e) => setColor(e.target.value)}
+                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm font-mono text-slate-300 focus:outline-none focus:border-blob-blue/50"
+              />
+            </div>
+          </section>
+
+          {/* Complexity Slider */}
+          <section className="space-y-4">
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <Layers size={14} /> Complexidade
+              </label>
+              <span className="text-xs font-mono text-blob-blue">{complexity}</span>
+            </div>
+            <input 
+              type="range" 
+              min="3" 
+              max="20" 
+              value={complexity}
+              onChange={(e) => setComplexity(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blob-blue"
+            />
+          </section>
+
+          {/* Smoothness Slider */}
+          <section className="space-y-4">
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <Sparkles size={14} /> Suavidade
+              </label>
+              <span className="text-xs font-mono text-blob-blue">{smoothness}%</span>
+            </div>
+            <input 
+              type="range" 
+              min="0" 
+              max="100" 
+              value={smoothness}
+              onChange={(e) => setSmoothness(parseInt(e.target.value))}
+              className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blob-blue"
+            />
+          </section>
+
+          {/* Gallery Section */}
+          <section className="space-y-4 pt-6 border-t border-white/5">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <Bookmark size={14} /> Galeria Salva
+            </label>
+            <Gallery />
+          </section>
+        </div>
+
+        <footer className="mt-auto pt-6 border-t border-white/5 shrink-0">
+          <p className="text-[10px] text-slate-500 text-center uppercase tracking-tighter">
+            Desenvolvido com foco em Clean Code
+          </p>
+        </footer>
+      </div>
+    </aside>
+  );
+}
